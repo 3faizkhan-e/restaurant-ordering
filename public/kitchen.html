@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Kitchen Dashboard</title><link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+<div class="container">
+  <div class="header"><div class="brand">Kitchen Dashboard</div><div><small>Open on kitchen screen — orders appear in real-time</small></div></div>
+  <div><h2>Incoming Orders</h2><div id="orders" class="kitchen-list"></div></div>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket=io();const ordersEl=document.getElementById('orders');
+function renderOrder(order){const el=document.createElement('div');el.className='order-card';el.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><div><h4>Order ID: ${order.id}</h4><div class="order-table">Table: ${order.table}</div><div style="font-size:0.9rem;color:#666">Received: ${new Date(order.timestamp).toLocaleString()}</div></div><div><button class="btn btn-outline" onclick="markDone('${order.id}',this)">Done</button></div></div><div style="margin-top:10px">${order.items.map(i=>`<div class="row"><div>${i.name} x ${i.qty}</div><div>₹${i.price*i.qty}</div></div>`).join('')}<div style="text-align:right;font-weight:700;padding-top:8px">Total: ₹${order.total}</div></div>`;ordersEl.prepend(el);}
+socket.on('new-order',order=>{renderOrder(order);});
+function markDone(orderId,btn){const card=btn.closest('.order-card');if(card){card.style.opacity='0.5';card.style.transform='scale(0.99)';setTimeout(()=>card.remove(),400);}}
+</script>
+</body>
+</html>
